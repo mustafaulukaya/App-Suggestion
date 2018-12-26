@@ -19,6 +19,7 @@ namespace Uzman_Sistem
 {
     public partial class Form1 : Form
     {
+
         System.Diagnostics.Process APIProcess;
         DbContext dbContext;
         public Form1()
@@ -51,6 +52,8 @@ namespace Uzman_Sistem
                     }
                     
                     line = sr.ReadLine();
+
+                    Debug.WriteLine("Line: " + line);
                 }
 
             }else{
@@ -78,7 +81,7 @@ namespace Uzman_Sistem
                 AppScore = app.scoreText
             });
 
-            Debug.WriteLine(app.appId);
+            Debug.WriteLine("APP ID: " + app.appId);
 
             return dbContext.GetApps(op => op.AppPackageName == app.appId).FirstOrDefault();
             

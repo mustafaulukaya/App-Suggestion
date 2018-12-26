@@ -33,11 +33,11 @@
             // 
             // findPhone_button
             // 
-            this.findPhone_button.Location = new System.Drawing.Point(299, 183);
+            this.findPhone_button.Location = new System.Drawing.Point(299, 81);
             this.findPhone_button.Name = "findPhone_button";
             this.findPhone_button.Size = new System.Drawing.Size(220, 52);
             this.findPhone_button.TabIndex = 0;
-            this.findPhone_button.Text = "Telefonu Bul";
+            this.findPhone_button.Text = "Magic Button\r\n";
             this.findPhone_button.UseVisualStyleBackColor = true;
             this.findPhone_button.Click += new System.EventHandler(this.findPhone_button_Click);
             // 
