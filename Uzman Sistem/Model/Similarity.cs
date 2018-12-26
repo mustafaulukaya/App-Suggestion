@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Uzman_Sistem.Model
 {
-    class Similarity
+    public class Similarity
     {
 
         public long ID { get; set; }

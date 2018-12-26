@@ -38,6 +38,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
@@ -66,10 +67,11 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helper.cs" />
     <Compile Include="Model\App.cs" />
+    <Compile Include="Model\DBContext.cs" />
     <Compile Include="Model\JSON\App.cs" />
     <Compile Include="Model\JSON\SimilarApp.cs" />
-    <Compile Include="Model\appsuggestContext.cs" />
     <Compile Include="Model\JSON\Developer.cs" />
     <Compile Include="Model\JSON\Result.cs" />
     <Compile Include="Model\Rated.cs" />

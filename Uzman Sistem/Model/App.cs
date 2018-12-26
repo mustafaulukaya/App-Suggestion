@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Uzman_Sistem.Model
 {
-    class App
+    public class App
     {
         public App()
         {

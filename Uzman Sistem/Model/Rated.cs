@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Uzman_Sistem.Model
 {
-    class Rated
+    public class Rated
     {
 
         public string DeviceID { get; set; }
