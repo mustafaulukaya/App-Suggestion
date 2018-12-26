@@ -26,8 +26,8 @@ namespace Uzman_Sistem
 
         private void findPhone_button_Click(object sender, EventArgs e)
         {
-            //fetchpackages();
-
+            fetchpackages();
+            
             if (File.Exists("packages_name.txt"))
             {
                 FileStream fs = new FileStream("packages_name.txt", FileMode.Open);
@@ -49,9 +49,10 @@ namespace Uzman_Sistem
                     line = sr.ReadLine();
                 }
 
-
-                
+            }else{
+                MessageBox.Show("packages.txt does not exist");
             }
+            
             
         }
 
@@ -197,7 +198,9 @@ namespace Uzman_Sistem
         private void fetchpackages()
         {
             //var directory = AppDomain.CurrentDomain.BaseDirectory;
-
+            if (File.Exists("packages.txt")) {
+                File.Delete("packages.txt");
+            }
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo stratInfo = new System.Diagnostics.ProcessStartInfo();
             stratInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
@@ -206,6 +209,7 @@ namespace Uzman_Sistem
             process.StartInfo = stratInfo;
             process.Start();
 
+            process.WaitForExit();
 
             while (!File.Exists("packages.txt"));
 
@@ -228,6 +232,7 @@ namespace Uzman_Sistem
                 {
                     sw.WriteLine(text);
                 }
+                text = sr.ReadLine();
                 text = sr.ReadLine();
             }
 
