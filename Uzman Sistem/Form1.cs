@@ -26,8 +26,8 @@ namespace Uzman_Sistem
 
         private void findPhone_button_Click(object sender, EventArgs e)
         {
-            //fetchpackages();
-
+            fetchpackages();
+            
             if (File.Exists("packages_name.txt"))
             {
                 FileStream fs = new FileStream("packages_name.txt", FileMode.Open);
