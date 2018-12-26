@@ -18,9 +18,22 @@ namespace Uzman_Sistem.Model {
                 //var res = db.Query<User>("SELECT * FROM users", commandType: CommandType.Text).ToList();
                 return null;
             }
-            return null;
         }
 
+        public static List<Similarity> GetAllSimilarity()
+        {
+            using (SqlConnection db = new SqlConnection(Helper.ConnectionString))
+            {
+                if (db.State == ConnectionState.Closed)
+                {
+                    db.Open();
+                }
+                var res = db.Query<Similarity>("SELECT * FROM Similarity", commandType: CommandType.Text).
+                    ToList();
+
+                return res;
+            }
+        }
 
     }
 }

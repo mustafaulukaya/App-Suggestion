@@ -33,7 +33,7 @@
             // 
             // findPhone_button
             // 
-            this.findPhone_button.Location = new System.Drawing.Point(545, 170);
+            this.findPhone_button.Location = new System.Drawing.Point(299, 183);
             this.findPhone_button.Name = "findPhone_button";
             this.findPhone_button.Size = new System.Drawing.Size(220, 52);
             this.findPhone_button.TabIndex = 0;
@@ -45,7 +45,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1346, 489);
+            this.ClientSize = new System.Drawing.Size(842, 466);
             this.Controls.Add(this.findPhone_button);
             this.Name = "Form1";
             this.Text = "Form1";
