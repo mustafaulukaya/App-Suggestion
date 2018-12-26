@@ -12,6 +12,8 @@ using System.Net;
 using System.Web.Script.Serialization;
 using Uzman_Sistem.Model.JSON;
 using Uzman_Sistem.Model;
+using System.Threading;
+using System.Diagnostics;
 
 namespace Uzman_Sistem
 {
@@ -23,11 +25,12 @@ namespace Uzman_Sistem
         {
             InitializeComponent();
             dbContext = new DbContext();
+            start_API();
         }
 
         private void findPhone_button_Click(object sender, EventArgs e)
         {
-            fetchpackages();
+            //fetchpackages();
             
             if (File.Exists("packages_name.txt"))
             {
@@ -75,6 +78,8 @@ namespace Uzman_Sistem
                 AppScore = app.scoreText
             });
 
+            Debug.WriteLine(app.appId);
+
             return dbContext.GetApps(op => op.AppPackageName == app.appId).FirstOrDefault();
             
         }
@@ -83,35 +88,39 @@ namespace Uzman_Sistem
         {
 
             Model.JSON.App app = GetApp(app_name);
-
-            var table_app = updateAppTable(app);
-
-            List<Model.JSON.SimilarApp> similarApps = GetSimilarApps(app_name);
-
-            foreach (var _app in similarApps)
-            {
-                if (!isExistInDatabase(_app.appID))
-                {
-                    updateAppTable(new Model.JSON.App { appId = _app.appID,
-                                                        developer = _app.developer,
-                                                        free = _app.free,
-                                                        playstoreUrl = _app.playstoreUrl,
-                                                        priceText = _app.priceText,
-                                                        scoreText = _app.scoreText,
-                                                        title = _app.title
-                                                        });
-                }
-
-                dbContext.UpdateSimilarity(new Similarity { App1ID = table_app.ID, App2ID = dbContext.GetApps(op => op.AppPackageName == _app.appID).FirstOrDefault().ID });
-                
-            }
             
+            if(app != null)
+            {
+                var table_app = updateAppTable(app);
+
+                List<Model.JSON.SimilarApp> similarApps = GetSimilarApps(app_name);
+
+                foreach (var _app in similarApps)
+                {
+                    if (!isExistInDatabase(_app.appID))
+                    {
+                        updateAppTable(new Model.JSON.App{
+
+                                        appId = _app.appID,
+                                        developer = _app.developer,
+                                        free = _app.free,
+                                        playstoreUrl = _app.playstoreUrl,
+                                        priceText = _app.priceText,
+                                        scoreText = _app.scoreText,
+                                        title = _app.title
+                                    });
+                    }
+
+                    var similarapp = dbContext.GetApps(op => op.AppPackageName == _app.appID).FirstOrDefault();
+
+                    dbContext.UpdateSimilarity(new Similarity { App1ID = table_app.ID, App2ID = similarapp.ID });
+                }
+            }
         }
 
 
         private Model.JSON.App GetApp(string package_name)
         {
-            start_API();
 
             Model.JSON.App app;
 
@@ -119,29 +128,35 @@ namespace Uzman_Sistem
 
             HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(request);
 
-            HttpWebResponse resp = (HttpWebResponse)rq.GetResponse();
-            using (Stream s = resp.GetResponseStream())
+            try
             {
-                // Read the result here
-                using (StreamReader reader = new StreamReader(s))
+                HttpWebResponse resp = (HttpWebResponse)rq.GetResponse();
+                using (Stream s = resp.GetResponseStream())
                 {
-                    JavaScriptSerializer js = new JavaScriptSerializer();
-                    var response = reader.ReadToEnd();
+                    // Read the result here
+                    using (StreamReader reader = new StreamReader(s))
+                    {
+                        JavaScriptSerializer js = new JavaScriptSerializer();
+                        var response = reader.ReadToEnd();
 
-                    app = (Model.JSON.App)js.Deserialize(response, typeof(Model.JSON.App));
+                        app = (Model.JSON.App)js.Deserialize(response, typeof(Model.JSON.App));
+
+                    }
 
                 }
 
+                return app;
             }
-
-            stop_API();
-            return app;
+            catch(Exception e)
+            {
+                return null;
+            }
         }
 
         private List<Model.JSON.SimilarApp> GetSimilarApps(string package_name)
         {
 
-            start_API();
+            
 
             Result app;
 
@@ -163,7 +178,7 @@ namespace Uzman_Sistem
                 }
             }
             
-            stop_API();
+            
             return app.Results;
         }
 
@@ -182,6 +197,8 @@ namespace Uzman_Sistem
             stratInfo.Arguments = "/C npm start";
             APIProcess.StartInfo = stratInfo;
             APIProcess.Start();
+
+            Thread.Sleep(2000);
         }
 
 
@@ -261,6 +278,11 @@ namespace Uzman_Sistem
             fs.Close();
             sw.Close();
             fs.Close();
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            stop_API();
         }
     }
 }

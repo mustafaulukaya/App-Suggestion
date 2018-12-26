@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
 using System.Linq.Expressions;
+using Npgsql;
 
 namespace Uzman_Sistem.Model {
     public class DbContext {
@@ -17,11 +18,11 @@ namespace Uzman_Sistem.Model {
         }
 
         public List<App> GetApps(Expression<Func<App, bool>> expression = null) {
-            using (SqlConnection db = new SqlConnection(Helper.ConnectionString)) {
+            using (NpgsqlConnection db = new NpgsqlConnection(Helper.ConnectionString)) {
                 if (db.State == ConnectionState.Closed) {
                     db.Open();
                 }
-                var list = db.Query<App>("SELECT * FROM App", commandType: CommandType.Text).AsQueryable();
+                var list = db.Query<App>("SELECT * FROM app", commandType: CommandType.Text).AsQueryable();
 
                 if (expression != null)
                     list = list.Where(expression);
@@ -31,13 +32,16 @@ namespace Uzman_Sistem.Model {
         }
 
         public bool UpdateApp(App entity) {
-            using (SqlConnection db = new SqlConnection(Helper.ConnectionString)) {
+            using (NpgsqlConnection db = new NpgsqlConnection(Helper.ConnectionString)) {
                 if (db.State == ConnectionState.Closed) {
                     db.Open();
                 }
 
                 try {
-                    db.Query<App>("INSERT INTO App(AppPackageName, Title, isFree, playstoreUrl, priceText, AppScore) VALUES(" + entity.AppPackageName + "," + entity.Title + "," + entity.isFree + "," + entity.playstoreUrl + "," + entity.priceText + "," + entity.AppScore + ")", commandType: CommandType.Text);
+
+                    var sql = "INSERT INTO app (apppackagename, title, isfree, playstoreurl, pricetext, appscore) VALUES" + entity.toValues();
+
+                    db.Query<App>(sql , commandType: CommandType.Text);
                     return true;
                 } catch (Exception e) {
                     return false;
@@ -51,11 +55,11 @@ namespace Uzman_Sistem.Model {
         }
 
         public List<Similarity> GetSimilarities(Expression<Func<Similarity, bool>> expression = null) {
-            using (SqlConnection db = new SqlConnection(Helper.ConnectionString)) {
+            using (NpgsqlConnection db = new NpgsqlConnection(Helper.ConnectionString)) {
                 if (db.State == ConnectionState.Closed) {
                     db.Open();
                 }
-                var list = db.Query<Similarity>("SELECT * FROM Similarity", commandType: CommandType.Text).AsQueryable();
+                var list = db.Query<Similarity>("SELECT * FROM similarity", commandType: CommandType.Text).AsQueryable();
 
                 if (expression != null)
                     list = list.Where(expression);
@@ -65,13 +69,13 @@ namespace Uzman_Sistem.Model {
         }
 
         public bool UpdateSimilarity(Similarity entity) {
-            using (SqlConnection db = new SqlConnection(Helper.ConnectionString)) {
+            using (NpgsqlConnection db = new NpgsqlConnection(Helper.ConnectionString)) {
                 if (db.State == ConnectionState.Closed) {
                     db.Open();
                 }
 
                 try {
-                    db.Query<Similarity>("INSERT INTO Similarity(App1ID, App2ID, SimilarityScore) VALUES(" + entity.App1ID + "," + entity.App2ID + "," + entity.SimilarityScore + ")", commandType: CommandType.Text);
+                    db.Query<Similarity>("INSERT INTO similarity(app1id, app2id, similarityscore) VALUES" + entity.toValues(), commandType: CommandType.Text);
                     return true;
                 } catch (Exception e) {
                     return false;
@@ -85,11 +89,11 @@ namespace Uzman_Sistem.Model {
         }
 
         public List<Rated> GetRates(Expression<Func<Rated, bool>> expression = null) {
-            using (SqlConnection db = new SqlConnection(Helper.ConnectionString)) {
+            using (NpgsqlConnection db = new NpgsqlConnection(Helper.ConnectionString)) {
                 if (db.State == ConnectionState.Closed) {
                     db.Open();
                 }
-                var list = db.Query<Rated>("SELECT * FROM Rated", commandType: CommandType.Text).AsQueryable();
+                var list = db.Query<Rated>("SELECT * FROM rated", commandType: CommandType.Text).AsQueryable();
 
                 if (expression != null)
                     list = list.Where(expression);
@@ -99,13 +103,13 @@ namespace Uzman_Sistem.Model {
         }
 
         public bool UpdateRate(Rated entity) {
-            using (SqlConnection db = new SqlConnection(Helper.ConnectionString)) {
+            using (NpgsqlConnection db = new NpgsqlConnection(Helper.ConnectionString)) {
                 if (db.State == ConnectionState.Closed) {
                     db.Open();
                 }
 
                 try {
-                    db.Query<Rated>("INSERT INTO Rated(DeviceID, SimilarityID) VALUES(" + entity.DeviceID + "," + entity.SimilarityID + ")", commandType: CommandType.Text);
+                    db.Query<Rated>("INSERT INTO rated(deviceid, similarityid) VALUES"+ entity.toValues(), commandType: CommandType.Text);
                     return true;
                 } catch (Exception e) {
                     return false;

@@ -15,5 +15,11 @@ namespace Uzman_Sistem.Model
 
         public virtual Similarity Similarity { get; set; }
 
+        
+        public string toValues()
+        {
+            return string.Format("('{0}',{1})", this.DeviceID, this.SimilarityID);
+        }
+
     }
 }

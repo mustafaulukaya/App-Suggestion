@@ -30,8 +30,7 @@ namespace Uzman_Sistem.Model
         public virtual ICollection<App> SimilarApps { get; set; }
 
         public string toValues() {
-            return string.Format("({0},{1},{2},{3},{4},{5})", this.AppPackageName, this.Title, this.isFree, this.playstoreUrl, this.priceText, this.AppScore);
+            return string.Format("('{0}','{1}',{2},'{3}','{4}','{5}')", this.AppPackageName, this.Title.Replace("'", "''"), this.isFree, this.playstoreUrl, this.priceText, this.AppScore);
         }
-
     }
 }
