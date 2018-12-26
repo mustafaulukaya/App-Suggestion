@@ -18,10 +18,11 @@ namespace Uzman_Sistem
     public partial class Form1 : Form
     {
         System.Diagnostics.Process APIProcess;
-
+        DbContext dbContext;
         public Form1()
         {
             InitializeComponent();
+            dbContext = new DbContext();
         }
 
         private void findPhone_button_Click(object sender, EventArgs e)
@@ -58,13 +59,13 @@ namespace Uzman_Sistem
 
         private bool isExistInDatabase(string package_name)
         {
-            return DbContext.GetApps(op => op.AppPackageName == package_name).Any();
+            return dbContext.GetApps(op => op.AppPackageName == package_name).Any();
         }
 
         private Model.App updateAppTable(Model.JSON.App app)
         {
 
-            DbContext.UpdateApp(new Model.App
+            dbContext.UpdateApp(new Model.App
             {
                 AppPackageName = app.appId,
                 Title = app.title,
@@ -74,7 +75,7 @@ namespace Uzman_Sistem
                 AppScore = app.scoreText
             });
 
-            return DbContext.GetApps(op => op.AppPackageName == app.appId).FirstOrDefault();
+            return dbContext.GetApps(op => op.AppPackageName == app.appId).FirstOrDefault();
             
         }
 
@@ -101,7 +102,7 @@ namespace Uzman_Sistem
                                                         });
                 }
 
-                DbContext.UpdateSimilarity(new Similarity { App1ID = table_app.ID, App2ID = DbContext.GetApps(op => op.AppPackageName == _app.appID).FirstOrDefault().ID });
+                dbContext.UpdateSimilarity(new Similarity { App1ID = table_app.ID, App2ID = dbContext.GetApps(op => op.AppPackageName == _app.appID).FirstOrDefault().ID });
                 
             }
             
