@@ -58,31 +58,24 @@ namespace Uzman_Sistem
 
         private bool isExistInDatabase(string package_name)
         {
-            using (var db = new appsuggestContext())
-            {
-                return db.Apps.Select(op => op.AppPackageName == package_name).Any();
-            }
+            return DbContext.GetApps(op => op.AppPackageName == package_name).Any();
         }
 
         private Model.App updateAppTable(Model.JSON.App app)
         {
-            
-            using (var db = new appsuggestContext())
+
+            DbContext.UpdateApp(new Model.App
             {
-                db.Apps.Add(new Model.App
-                {
-                    AppPackageName = app.appId,
-                    Title = app.title,
-                    isFree = app.free,
-                    playstoreUrl = app.playstoreUrl,
-                    priceText = app.priceText,
-                    AppScore = app.scoreText
-                });
+                AppPackageName = app.appId,
+                Title = app.title,
+                isFree = app.free,
+                playstoreUrl = app.playstoreUrl,
+                priceText = app.priceText,
+                AppScore = app.scoreText
+            });
 
-                db.SaveChanges();
-
-                return db.Apps.Single(op => op.AppPackageName == app.appId);
-            }
+            return DbContext.GetApps(op => op.AppPackageName == app.appId).FirstOrDefault();
+            
         }
 
         private void updateDatabase(string app_name)
@@ -94,27 +87,24 @@ namespace Uzman_Sistem
 
             List<Model.JSON.SimilarApp> similarApps = GetSimilarApps(app_name);
 
-            using (var db = new appsuggestContext())
+            foreach (var _app in similarApps)
             {
-
-                foreach (var _app in similarApps)
+                if (!isExistInDatabase(_app.appID))
                 {
-                    if (!isExistInDatabase(_app.appID))
-                    {
-                        updateAppTable(new Model.JSON.App { appId = _app.appID,
-                                                            developer = _app.developer,
-                                                            free = _app.free,
-                                                            playstoreUrl = _app.playstoreUrl,
-                                                            priceText = _app.priceText,
-                                                            scoreText = _app.scoreText,
-                                                            title = _app.title
-                                                           });
-                    }
-                    
-                    db.Similarities.Add(new Similarity {App1ID =  table_app.ID, App2ID = db.Apps.Single(op => op.AppPackageName == _app.appID).ID });
+                    updateAppTable(new Model.JSON.App { appId = _app.appID,
+                                                        developer = _app.developer,
+                                                        free = _app.free,
+                                                        playstoreUrl = _app.playstoreUrl,
+                                                        priceText = _app.priceText,
+                                                        scoreText = _app.scoreText,
+                                                        title = _app.title
+                                                        });
                 }
 
+                DbContext.UpdateSimilarity(new Similarity { App1ID = table_app.ID, App2ID = DbContext.GetApps(op => op.AppPackageName == _app.appID).FirstOrDefault().ID });
+                
             }
+            
         }
 
 
