@@ -160,7 +160,6 @@ namespace Uzman_Sistem
                     app = (Result)js.Deserialize(response, typeof(Result));
 
                 }
-                    
             }
             
             stop_API();
