@@ -332,18 +332,19 @@ namespace Uzman_Sistem
             if (File.Exists("packages_name.txt"))
             {
                 listView1.Items.Clear();
+                string deviceId = getDeviceId();
 
                 FileStream fs = new FileStream("packages_name.txt", FileMode.Open);
                 StreamReader sr = new StreamReader(fs);
 
                 var package = sr.ReadLine();
                 //Veri tabanındaki tüm uygulamalar çekiliyor
-                var list = dbContext.GetApps();
+                var list = dbContext.GetSuggestion(deviceId);
 
                 while (!string.IsNullOrEmpty(package))
                 {
                     //telefonda olan uygulamalar listeden çıkartılıyor
-                    list = list.Where(op => op.AppPackageName != package).ToList();
+                    list = list.Where(op => op.AppPackageName != package ).ToList();
                     package = sr.ReadLine();
                 }
                 //liste similarity count a göre büyükten küçüğe sıralanıyor
@@ -352,12 +353,15 @@ namespace Uzman_Sistem
                 foreach(var s in list) {
                     listView1.Items.Add(s.Title);
                     k++;
-                    if (k > 25)
+                    if (k > 50)
                         break;
                 }
                 suggestedAppList = list;
+                
                 //En son neri veriliyor
-                currentApp = suggestedAppList[0];
+                iter = 0;
+                currentApp = suggestedAppList[iter];
+             
                 UpdateCurrentSuggestion();
 
                 sr.Close();
@@ -374,28 +378,31 @@ namespace Uzman_Sistem
             
         }
 
+
         private void buttonLike_Click(object sender, EventArgs e) {
-            iter++;
-            currentApp = suggestedAppList[iter];
-            UpdateCurrentSuggestion();
             string deviceId = getDeviceId();
             dbContext.UpdateLike(new Like() {
                 deviceid = deviceId,
                 appid = currentApp.ID,
                 liked = true
             });
-        }
-
-        private void buttonDislike_Click(object sender, EventArgs e) {
+            
             iter++;
             currentApp = suggestedAppList[iter];
             UpdateCurrentSuggestion();
+        }
+
+        private void buttonDislike_Click(object sender, EventArgs e) {
             string deviceId = getDeviceId();
             dbContext.UpdateLike(new Like() {
                 deviceid = deviceId,
                 appid = currentApp.ID,
                 liked = false
             });
+            iter++;
+            currentApp = suggestedAppList[iter];
+            UpdateCurrentSuggestion();
+            
         }
 
         private void labelLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {

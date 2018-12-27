@@ -68,10 +68,22 @@ namespace Uzman_Sistem.Model {
             }
         }
 
+        public List<App> GetSuggestion(string deviceID) {
+            using (NpgsqlConnection db = new NpgsqlConnection(Helper.ConnectionString)) {
+                if (db.State == ConnectionState.Closed) {
+                    db.Open();
+                }
+                var list = db.Query<App>("SELECT * from app EXCEPT(SELECT app.* from app, \"like\" WHERE appid = app.id AND \"like\".deviceid = '"+deviceID+"')", commandType: CommandType.Text).AsQueryable();
+
+                
+                return list.ToList();
+            }
+        }
+
 
         /******************************************************************/
-        public Like GetLike(string DeviceID) {
-            return GetLikes(op => op.deviceid == DeviceID).FirstOrDefault();
+        public List<Like> GetLike(string DeviceID) {
+            return GetLikes(op => op.deviceid == DeviceID);
         }
 
         public List<Like> GetLikes(Expression<Func<Like, bool>> expression = null) {
@@ -79,7 +91,7 @@ namespace Uzman_Sistem.Model {
                 if (db.State == ConnectionState.Closed) {
                     db.Open();
                 }
-                var list = db.Query<Like>("SELECT * FROM like", commandType: CommandType.Text).AsQueryable();
+                var list = db.Query<Like>("SELECT * FROM \"like\"", commandType: CommandType.Text).AsQueryable();
 
                 if (expression != null)
                     list = list.Where(expression);
@@ -95,7 +107,7 @@ namespace Uzman_Sistem.Model {
                 }
 
                 try {
-                    db.Query<Like>("INSERT INTO rated(deviceid, appid, liked) VALUES"+ entity.toValues(), commandType: CommandType.Text);
+                    db.Query<Like>("INSERT INTO \"like\"(deviceid, appid, liked) VALUES"+ entity.toValues(), commandType: CommandType.Text);
                     return true;
                 } catch (Exception e) {
                     return false;
