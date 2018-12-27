@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Uzman_Sistem.Model {
+    //Kullanıcıya verilen önerinin, kullanıcının beğenip 
+    //beğenmediği bilgisi için oluşturulan sınıf
     public class Like {
         public string deviceid { get; set; }
 

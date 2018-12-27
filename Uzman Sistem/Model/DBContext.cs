@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using Npgsql;
 
 namespace Uzman_Sistem.Model {
+    //Veri tabanı işlemleri bu sınıf üzerinden gerçekleştirilir.
     public class DbContext {
 
         public App GetApp(long ID) {

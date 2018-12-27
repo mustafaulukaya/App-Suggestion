@@ -25,10 +25,15 @@ namespace Uzman_Sistem
         public Form1()
         {
             InitializeComponent();
+            //veri tabanı işlemlerinin gerçekleştirilebilmesi için 
+            //dbContext'in bir rneği oluşturuluyor 
             dbContext = new DbContext();
+
+            //API üzerinde verilerin çekilebilmesi için gereken sunucu başlatılıyor
             start_API();
         }
 
+        //Usb kablo ile balı android cihazın device id'sini döndürür
         private string getDeviceId() {
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo stratInfo = new System.Diagnostics.ProcessStartInfo();
@@ -48,14 +53,16 @@ namespace Uzman_Sistem
             return res[2].Substring(0, res[2].Length - 7);
         }
 
+        //Telefondaki uygulamaların verilerini çektikten sonra veri tabanına kaydeden fonksiyon
         private void findPhone_button_Click(object sender, EventArgs e)
         {
 
             string deviceId = getDeviceId();
 
-
+            //Uygulamaların bilgileri alınıyor
             fetchpackages();
-            
+            //Cihazda bulunan her uygulama için API üzerinden bilgileri çekiliyor
+            //gelen bilgiler ile veri tabanına kayıt ediliyor.
             if (File.Exists("packages_name.txt"))
             {
                 FileStream fs = new FileStream("packages_name.txt", FileMode.Open);
@@ -65,7 +72,7 @@ namespace Uzman_Sistem
 
                 while (!string.IsNullOrEmpty(line))
                 {
-                
+                    
                     if (!isExistInDatabase(line))
                     {
                         
@@ -88,12 +95,12 @@ namespace Uzman_Sistem
             
             
         }
-
+        //Uygulamanın daha önceden veri tabanında bulunup bulunmadığının kontrolünü yapan fonk.
         private bool isExistInDatabase(string package_name)
         {
             return dbContext.GetApps(op => op.AppPackageName == package_name).Any();
         }
-
+        //Veri tabanına kayıtları yapan alt fonk.
         private Model.App updateAppTable(Model.JSON.App app)
         {
 
@@ -113,7 +120,7 @@ namespace Uzman_Sistem
             return dbContext.GetApps(op => op.AppPackageName == app.appId).FirstOrDefault();
             
         }
-
+        //Web sunucu üzerinden Http sorgusu yollayıp gelen yanıtları veri tabanına kaydeden fonk.
         private void updateDatabase(string app_name)
         {
 
@@ -140,13 +147,14 @@ namespace Uzman_Sistem
                                         title = _app.title
                                     });
                     } else {
+                        //similar count değişkeni 1 arttırılarak önerinin iyileştirilmesi sağlanıyor.
                         dbContext.IncrementSimilarCount(_app.appID);
                     }
                 }
             }
         }
 
-
+        //Http sorgusu ile verilerin çekilmesini sağlayan fonksiyon
         private Model.JSON.App GetApp(string package_name)
         {
 
@@ -180,12 +188,12 @@ namespace Uzman_Sistem
                 return null;
             }
         }
+        //Http sorgusu ile verilerin çekilmesini sağlayan fonksiyon
 
         private List<Model.JSON.SimilarApp> GetSimilarApps(string package_name)
         {
 
             
-
             Result app;
 
             var request = "http://localhost:3000/api/apps/" + package_name + "/similar";
@@ -214,11 +222,11 @@ namespace Uzman_Sistem
             
         }
 
-
+        //Sunucuyu durduran fonksiyon
         private void stop_API() {
             APIProcess.Dispose();
         }
-        
+        //Sunucuyu başlatan fonksiyon
         private void start_API()
         {
             APIProcess = new System.Diagnostics.Process();
@@ -233,7 +241,7 @@ namespace Uzman_Sistem
             Thread.Sleep(2000);
         }
 
-
+        //Cihazda bulunan uygulamaların bilgisini çekip dosya sistemi üzerinde kaydeden fonksiyon
         private void fetchpackages()
         {
             //var directory = AppDomain.CurrentDomain.BaseDirectory;
@@ -316,7 +324,7 @@ namespace Uzman_Sistem
         {
             stop_API();
         }
-
+        //Öneriyi gerçekleştiren tuşun eventi
         private void suggest_button_Click(object sender, EventArgs e)
         {
             //fetchpackages();
@@ -329,14 +337,16 @@ namespace Uzman_Sistem
                 StreamReader sr = new StreamReader(fs);
 
                 var package = sr.ReadLine();
+                //Veri tabanındaki tüm uygulamalar çekiliyor
                 var list = dbContext.GetApps();
 
                 while (!string.IsNullOrEmpty(package))
                 {
+                    //telefonda olan uygulamalar listeden çıkartılıyor
                     list = list.Where(op => op.AppPackageName != package).ToList();
                     package = sr.ReadLine();
                 }
-
+                //liste similarity count a göre büyükten küçüğe sıralanıyor
                 list = list.OrderByDescending(op => op.similarityCount).ToList();
                 int k = 0;
                 foreach(var s in list) {
@@ -346,6 +356,7 @@ namespace Uzman_Sistem
                         break;
                 }
                 suggestedAppList = list;
+                //En son neri veriliyor
                 currentApp = suggestedAppList[0];
                 UpdateCurrentSuggestion();
 

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Uzman_Sistem.Model.JSON
 {
+    //Api dan gelen verilerin formatlanması için Model sağlayan sınıf
     class App
     {
         public string title { get; set; }
