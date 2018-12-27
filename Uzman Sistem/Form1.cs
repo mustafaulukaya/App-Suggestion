@@ -19,6 +19,7 @@ namespace Uzman_Sistem
 {
     public partial class Form1 : Form
     {
+
         System.Diagnostics.Process APIProcess;
         DbContext dbContext;
         public Form1()
@@ -74,7 +75,12 @@ namespace Uzman_Sistem
                     }
                     
                     line = sr.ReadLine();
+
+                    Debug.WriteLine("Line: " + line);
                 }
+
+                sr.Close();
+                fs.Close();
 
             }else{
                 MessageBox.Show("packages.txt does not exist");
@@ -101,7 +107,7 @@ namespace Uzman_Sistem
                 AppScore = app.scoreText
             });
 
-            Debug.WriteLine(app.appId);
+            Debug.WriteLine("APP ID: " + app.appId);
 
             return dbContext.GetApps(op => op.AppPackageName == app.appId).FirstOrDefault();
             
@@ -186,23 +192,27 @@ namespace Uzman_Sistem
             var request = "http://localhost:3000/api/apps/" + package_name + "/similar";
 
             HttpWebRequest rq = (HttpWebRequest)WebRequest.Create(request);
-
-            HttpWebResponse resp = (HttpWebResponse)rq.GetResponse();
-            using (Stream s = resp.GetResponseStream())
+            try
             {
-                // Read the result here
-                using (StreamReader reader = new StreamReader(s))
+                HttpWebResponse resp = (HttpWebResponse)rq.GetResponse();
+                using (Stream s = resp.GetResponseStream())
                 {
-                    JavaScriptSerializer js = new JavaScriptSerializer();
-                    var response = reader.ReadToEnd();
+                    // Read the result here
+                    using (StreamReader reader = new StreamReader(s))
+                    {
+                        JavaScriptSerializer js = new JavaScriptSerializer();
+                        var response = reader.ReadToEnd();
 
-                    app = (Result)js.Deserialize(response, typeof(Result));
-
+                        app = (Result)js.Deserialize(response, typeof(Result));
+                    }
                 }
+                return app.Results;
+            }
+            catch(Exception e)
+            {
+                return null;
             }
             
-            
-            return app.Results;
         }
 
 
@@ -306,6 +316,84 @@ namespace Uzman_Sistem
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             stop_API();
+        }
+
+        private void suggest_button_Click(object sender, EventArgs e)
+        {
+            //fetchpackages();
+
+            List<AppCount> appCount = new List<AppCount>();
+            List<AppCount> myapps = new List<AppCount>();
+
+            if (File.Exists("packages_name.txt"))
+            {
+                listView1.Items.Clear();
+
+                FileStream fs = new FileStream("packages_name.txt", FileMode.Open);
+                StreamReader sr = new StreamReader(fs);
+
+                var package = sr.ReadLine();
+
+                while (!string.IsNullOrEmpty(package))
+                {
+                    var app = dbContext.GetApps(op => op.AppPackageName == package).FirstOrDefault();
+
+                    if(app != null)
+                    {
+                        myapps.Add(new AppCount {ID = app.ID });
+
+                        var similarlist = dbContext.GetSimilarities(op => op.App1ID == app.ID).Union(dbContext.GetSimilarities(op => op.App2ID == app.ID));
+
+                        foreach (var item in similarlist)
+                        {
+
+                            var _item = appCount.Where(op => op.ID == item.ID);
+
+                            if (_item.FirstOrDefault() == null)
+                            {
+                                appCount.Add(new AppCount {ID = item.ID, Count = 1 });
+                            }
+                            else
+                            {
+                                _item.FirstOrDefault().Count++;
+                            }
+                        }
+                    }
+
+                    package = sr.ReadLine();
+                }
+
+                appCount = appCount.OrderByDescending(op => op.Count).ToList();
+                
+                foreach (var app1 in myapps)
+                {
+                    var _a = appCount.Where(op => op.ID == app1.ID).FirstOrDefault();
+
+                    if(_a != null)
+                        appCount.Remove(_a);
+                }
+
+                var k = 0;
+
+                
+
+                foreach (var app in appCount)
+                {
+                    var _x = dbContext.GetApp(app.ID);
+
+                    if(_x != null)
+                    {
+                        k++;
+                        listView1.Items.Add(_x.Title);
+                    }
+
+                    if (k == 10)
+                        break;
+                }
+
+                sr.Close();
+                fs.Close();
+            }
         }
     }
 }

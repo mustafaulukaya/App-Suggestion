@@ -8,10 +8,6 @@ namespace Uzman_Sistem.Model
 {
     public class App
     {
-        public App()
-        {
-            SimilarApps = new List<App>();
-        }
 
         public long ID { get; set; }
         
@@ -26,8 +22,6 @@ namespace Uzman_Sistem.Model
         public string priceText { get; set; }
 
         public string AppScore { get; set; }
-
-        public virtual ICollection<App> SimilarApps { get; set; }
 
         public string toValues() {
             return string.Format("('{0}','{1}',{2},'{3}','{4}','{5}')", this.AppPackageName, this.Title.Replace("'", "''"), this.isFree, this.playstoreUrl, this.priceText, this.AppScore);

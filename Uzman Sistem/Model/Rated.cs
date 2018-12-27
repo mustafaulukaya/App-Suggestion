@@ -12,8 +12,7 @@ namespace Uzman_Sistem.Model
         public string DeviceID { get; set; }
 
         public long SimilarityID { get; set; }
-
-        public virtual Similarity Similarity { get; set; }
+        
 
         
         public string toValues()
