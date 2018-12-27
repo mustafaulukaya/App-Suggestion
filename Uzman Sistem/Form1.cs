@@ -30,7 +30,6 @@ namespace Uzman_Sistem
 
         private void findPhone_button_Click(object sender, EventArgs e)
         {
-            //fetchpackages();
             
             if (File.Exists("packages_name.txt"))
             {
@@ -41,7 +40,7 @@ namespace Uzman_Sistem
 
                 while (!string.IsNullOrEmpty(line))
                 {
-
+                
                     if (!isExistInDatabase(line))
                     {
                         
