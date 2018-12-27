@@ -104,7 +104,8 @@ namespace Uzman_Sistem
                 isFree = app.free,
                 playstoreUrl = app.playstoreUrl,
                 priceText = app.priceText,
-                AppScore = app.scoreText
+                AppScore = app.scoreText,
+                similarityCount = 1
             });
 
             Debug.WriteLine("APP ID: " + app.appId);
@@ -138,11 +139,9 @@ namespace Uzman_Sistem
                                         scoreText = _app.scoreText,
                                         title = _app.title
                                     });
+                    } else {
+                        dbContext.IncrementSimilarCount(_app.appID);
                     }
-
-                    var similarapp = dbContext.GetApps(op => op.AppPackageName == _app.appID).FirstOrDefault();
-
-                    dbContext.UpdateSimilarity(new Similarity { App1ID = table_app.ID, App2ID = similarapp.ID });
                 }
             }
         }
@@ -322,9 +321,6 @@ namespace Uzman_Sistem
         {
             //fetchpackages();
 
-            List<AppCount> appCount = new List<AppCount>();
-            List<AppCount> myapps = new List<AppCount>();
-
             if (File.Exists("packages_name.txt"))
             {
                 listView1.Items.Clear();
@@ -333,67 +329,68 @@ namespace Uzman_Sistem
                 StreamReader sr = new StreamReader(fs);
 
                 var package = sr.ReadLine();
+                var list = dbContext.GetApps();
 
                 while (!string.IsNullOrEmpty(package))
                 {
-                    var app = dbContext.GetApps(op => op.AppPackageName == package).FirstOrDefault();
-
-                    if(app != null)
-                    {
-                        myapps.Add(new AppCount {ID = app.ID });
-
-                        var similarlist = dbContext.GetSimilarities(op => op.App1ID == app.ID).Union(dbContext.GetSimilarities(op => op.App2ID == app.ID));
-
-                        foreach (var item in similarlist)
-                        {
-
-                            var _item = appCount.Where(op => op.ID == item.ID);
-
-                            if (_item.FirstOrDefault() == null)
-                            {
-                                appCount.Add(new AppCount {ID = item.ID, Count = 1 });
-                            }
-                            else
-                            {
-                                _item.FirstOrDefault().Count++;
-                            }
-                        }
-                    }
-
+                    list = list.Where(op => op.AppPackageName != package).ToList();
                     package = sr.ReadLine();
                 }
 
-                appCount = appCount.OrderByDescending(op => op.Count).ToList();
-                
-                foreach (var app1 in myapps)
-                {
-                    var _a = appCount.Where(op => op.ID == app1.ID).FirstOrDefault();
-
-                    if(_a != null)
-                        appCount.Remove(_a);
-                }
-
-                var k = 0;
-
-                
-
-                foreach (var app in appCount)
-                {
-                    var _x = dbContext.GetApp(app.ID);
-
-                    if(_x != null)
-                    {
-                        k++;
-                        listView1.Items.Add(_x.Title);
-                    }
-
-                    if (k == 10)
+                list = list.OrderByDescending(op => op.similarityCount).ToList();
+                int k = 0;
+                foreach(var s in list) {
+                    listView1.Items.Add(s.Title);
+                    k++;
+                    if (k > 25)
                         break;
                 }
+                suggestedAppList = list;
+                currentApp = suggestedAppList[0];
+                UpdateCurrentSuggestion();
 
                 sr.Close();
                 fs.Close();
             }
         }
+        private List<Model.App> suggestedAppList;
+        private Model.App currentApp;
+        private int iter = 0;
+
+        private void UpdateCurrentSuggestion() {
+            this.labelTitle.Text = currentApp.Title;
+            this.labelRate.Text = currentApp.AppScore;
+            
+        }
+
+        private void buttonLike_Click(object sender, EventArgs e) {
+            iter++;
+            currentApp = suggestedAppList[iter];
+            UpdateCurrentSuggestion();
+            string deviceId = getDeviceId();
+            dbContext.UpdateLike(new Like() {
+                deviceid = deviceId,
+                appid = currentApp.ID,
+                liked = true
+            });
+        }
+
+        private void buttonDislike_Click(object sender, EventArgs e) {
+            iter++;
+            currentApp = suggestedAppList[iter];
+            UpdateCurrentSuggestion();
+            string deviceId = getDeviceId();
+            dbContext.UpdateLike(new Like() {
+                deviceid = deviceId,
+                appid = currentApp.ID,
+                liked = false
+            });
+        }
+
+        private void labelLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            System.Diagnostics.Process.Start(currentApp.playstoreUrl);
+        }
+
+        
     }
 }

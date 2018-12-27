@@ -39,9 +39,9 @@ namespace Uzman_Sistem.Model {
 
                 try {
 
-                    var sql = "INSERT INTO app (apppackagename, title, isfree, playstoreurl, pricetext, appscore) VALUES" + entity.toValues();
+                    var sql = "INSERT INTO app (apppackagename, title, isfree, playstoreurl, pricetext, appscore, similarcount) VALUES" + entity.toValues();
 
-                    db.Query<App>(sql , commandType: CommandType.Text);
+                    db.Query<App>(sql, commandType: CommandType.Text);
                     return true;
                 } catch (Exception e) {
                     return false;
@@ -49,81 +49,58 @@ namespace Uzman_Sistem.Model {
             }
         }
 
-
-        public Similarity GetSimilarity(long ID) {
-            return GetSimilarities(op => op.ID == ID).FirstOrDefault();
-        }
-
-        public List<Similarity> GetSimilarities(Expression<Func<Similarity, bool>> expression = null) {
-            using (NpgsqlConnection db = new NpgsqlConnection(Helper.ConnectionString)) {
-                if (db.State == ConnectionState.Closed) {
-                    db.Open();
-                }
-                var list = db.Query<Similarity>("SELECT * FROM similarity", commandType: CommandType.Text).AsQueryable();
-
-                if (expression != null)
-                    list = list.Where(expression);
-
-                return list.ToList();
-            }
-        }
-
-        public bool UpdateSimilarity(Similarity entity) {
-            using (NpgsqlConnection db = new NpgsqlConnection(Helper.ConnectionString)) {
-                if (db.State == ConnectionState.Closed) {
-                    db.Open();
-                }
-
-                try
-                {
-                    if (GetSimilarities(op => op.App2ID == entity.App2ID).Any())
-                    {
-                        db.Query<Similarity>("UPDATE similarity SET similarityscore = (similarityscore + 1) WHERE app1id = " + entity.App1ID + " AND app2id = " + entity.App2ID, commandType: CommandType.Text);
-                    }
-                    else
-                    {
-                        db.Query<Similarity>("INSERT INTO similarity(app1id, app2id, similarityscore) VALUES" + entity.toValues(), commandType: CommandType.Text);
-                    }
-
-                    return true;
-                } catch (Exception e) {
-                    return false;
-                }
-            }
-        }
-
-        /******************************************************************/
-        public Rated GetRate(string DeviceID) {
-            return GetRates(op => op.DeviceID == DeviceID).FirstOrDefault();
-        }
-
-        public List<Rated> GetRates(Expression<Func<Rated, bool>> expression = null) {
-            using (NpgsqlConnection db = new NpgsqlConnection(Helper.ConnectionString)) {
-                if (db.State == ConnectionState.Closed) {
-                    db.Open();
-                }
-                var list = db.Query<Rated>("SELECT * FROM rated", commandType: CommandType.Text).AsQueryable();
-
-                if (expression != null)
-                    list = list.Where(expression);
-
-                return list.ToList();
-            }
-        }
-
-        public bool UpdateRate(Rated entity) {
+        public bool IncrementSimilarCount(string packageName) {
             using (NpgsqlConnection db = new NpgsqlConnection(Helper.ConnectionString)) {
                 if (db.State == ConnectionState.Closed) {
                     db.Open();
                 }
 
                 try {
-                    db.Query<Rated>("INSERT INTO rated(deviceid, similarityid) VALUES"+ entity.toValues(), commandType: CommandType.Text);
+                    var entity = GetApps(op => op.AppPackageName == packageName).FirstOrDefault();
+                    var sql = "UPDATE app SET similarcount=similarcount+1 WHERE id=" + entity.ID;
+
+                    db.Query<App>(sql, commandType: CommandType.Text);
                     return true;
                 } catch (Exception e) {
                     return false;
                 }
             }
         }
+
+
+        /******************************************************************/
+        public Like GetLike(string DeviceID) {
+            return GetLikes(op => op.deviceid == DeviceID).FirstOrDefault();
+        }
+
+        public List<Like> GetLikes(Expression<Func<Like, bool>> expression = null) {
+            using (NpgsqlConnection db = new NpgsqlConnection(Helper.ConnectionString)) {
+                if (db.State == ConnectionState.Closed) {
+                    db.Open();
+                }
+                var list = db.Query<Like>("SELECT * FROM like", commandType: CommandType.Text).AsQueryable();
+
+                if (expression != null)
+                    list = list.Where(expression);
+
+                return list.ToList();
+            }
+        }
+
+        public bool UpdateLike(Like entity) {
+            using (NpgsqlConnection db = new NpgsqlConnection(Helper.ConnectionString)) {
+                if (db.State == ConnectionState.Closed) {
+                    db.Open();
+                }
+
+                try {
+                    db.Query<Like>("INSERT INTO rated(deviceid, appid, liked) VALUES"+ entity.toValues(), commandType: CommandType.Text);
+                    return true;
+                } catch (Exception e) {
+                    return false;
+                }
+            }
+        }
+
     }
 }

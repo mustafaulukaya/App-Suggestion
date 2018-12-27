@@ -81,8 +81,7 @@
     <Compile Include="Model\JSON\SimilarApp.cs" />
     <Compile Include="Model\JSON\Developer.cs" />
     <Compile Include="Model\JSON\Result.cs" />
-    <Compile Include="Model\Rated.cs" />
-    <Compile Include="Model\Similarity.cs" />
+    <Compile Include="Model\Like.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">

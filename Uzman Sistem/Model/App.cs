@@ -23,8 +23,10 @@ namespace Uzman_Sistem.Model
 
         public string AppScore { get; set; }
 
+        public int similarityCount { get; set; }
+
         public string toValues() {
-            return string.Format("('{0}','{1}',{2},'{3}','{4}','{5}')", this.AppPackageName, this.Title.Replace("'", "''"), this.isFree, this.playstoreUrl, this.priceText, this.AppScore);
+            return string.Format("('{0}','{1}',{2},'{3}','{4}','{5}',{6})", this.AppPackageName, this.Title.Replace("'", "''"), this.isFree, this.playstoreUrl, this.priceText, this.AppScore, this.similarityCount);
         }
     }
 }
