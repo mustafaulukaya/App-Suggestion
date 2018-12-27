@@ -22,10 +22,6 @@ namespace Uzman_Sistem.Model
 
         public long SimilarityScore { get; set; }
 
-        public virtual App App1 { get; set; }
-
-        public virtual App App2 { get; set; }
-
         public string toValues()
         {
             return string.Format("({0},{1},{2})", this.App1ID, this.App2ID, this.SimilarityScore);

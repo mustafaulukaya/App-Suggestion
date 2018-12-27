@@ -74,8 +74,17 @@ namespace Uzman_Sistem.Model {
                     db.Open();
                 }
 
-                try {
-                    db.Query<Similarity>("INSERT INTO similarity(app1id, app2id, similarityscore) VALUES" + entity.toValues(), commandType: CommandType.Text);
+                try
+                {
+                    if (GetSimilarities(op => op.App2ID == entity.App2ID).Any())
+                    {
+                        db.Query<Similarity>("UPDATE similarity SET similarityscore = (similarityscore + 1) WHERE app1id = " + entity.App1ID + " AND app2id = " + entity.App2ID, commandType: CommandType.Text);
+                    }
+                    else
+                    {
+                        db.Query<Similarity>("INSERT INTO similarity(app1id, app2id, similarityscore) VALUES" + entity.toValues(), commandType: CommandType.Text);
+                    }
+
                     return true;
                 } catch (Exception e) {
                     return false;
