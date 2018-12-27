@@ -28,8 +28,32 @@ namespace Uzman_Sistem
             start_API();
         }
 
+        private string getDeviceId() {
+            System.Diagnostics.Process process = new System.Diagnostics.Process();
+            System.Diagnostics.ProcessStartInfo stratInfo = new System.Diagnostics.ProcessStartInfo();
+            stratInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            stratInfo.FileName = "cmd.exe";
+            stratInfo.Arguments = "/C adb devices";
+            process.StartInfo = stratInfo;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.UseShellExecute = false;
+            process.Start();
+           
+            process.WaitForExit();
+            string temp = process.StandardOutput.ReadToEnd();
+
+            string [] res = temp.Split('\r','\n');
+             
+            return res[2].Substring(0, res[2].Length - 7);
+        }
+
         private void findPhone_button_Click(object sender, EventArgs e)
         {
+
+            string deviceId = getDeviceId();
+
+
+            fetchpackages();
             
             if (File.Exists("packages_name.txt"))
             {
